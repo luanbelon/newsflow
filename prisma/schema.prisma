@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  summary     String
+  imageUrl    String?
+  sourceUrl   String
+  sourceName  String
+  category    String
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  isPublished Boolean  @default(true)
+  sourceHash  String   @unique
+
+  @@index([category])
+  @@index([publishedAt])
+  @@index([isPublished])
+}
+
+model Feed {
+  id          String    @id @default(cuid())
+  name        String
+  url         String    @unique
+  category    String
+  isActive    Boolean   @default(true)
+  lastFetched DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model DailyStat {
+  id            String @id @default(cuid())
+  date          String @unique
+  articlesCount Int    @default(0)
+}
