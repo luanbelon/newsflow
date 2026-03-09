@@ -1,0 +1,83 @@
+﻿
+> news-temp@0.1.0 build
+> next build
+
+npm : ÔÜá Warning: 
+Next.js inferred your 
+workspace root, but it 
+may not be correct.
+No linha:1 caractere:1
++ npm run build 2>&1 | 
+Out-File -Encoding 
+utf8 build.log
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (ÔÜá Warning:    
+ Ne...not be correc    
+t.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+ We detected multiple 
+lockfiles and selected 
+the directory of C:\Use
+rs\luan.santos\package-
+lock.json as the root 
+directory.
+ To silence this 
+warning, set 
+`turbopack.root` in 
+your Next.js config, 
+or consider removing 
+one of the lockfiles 
+if it's not needed.
+   See https://nextjs.o
+rg/docs/app/api-referen
+ce/config/next-config-j
+s/turbopack#root-direct
+ory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\luan.sant
+os\Documents\TECHEND\pa
+ckage-lock.json
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  ┬À serverActions
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 2.5s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/13) ...
+  Generating static pages using 7 workers (3/13) 
+  Generating static pages using 7 workers (6/13) 
+  Generating static pages using 7 workers (9/13) 
+Ô£ô Generating static pages using 7 workers (13/13) in 673.0ms
+  Finalizing page optimization ...
+
+Route (app)              Revalidate  Expire
+Ôöî Ôùï /                            5m      1y
+Ôö£ Ôùï /_not-found
+Ôö£ ãÆ /api/admin/articles
+Ôö£ ãÆ /api/admin/stats
+Ôö£ ãÆ /api/articles
+Ôö£ ãÆ /api/cron
+Ôö£ ãÆ /api/feeds
+Ôö£ Ôùï /busca
+Ôö£ ãÆ /categoria/[slug]
+Ôö£ ãÆ /noticia/[slug]
+Ôö£ Ôùï /xp9k2m7w
+Ôö£ Ôùï /xp9k2m7w/artigos
+Ôöö Ôùï /xp9k2m7w/feeds
+
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+
