@@ -10,7 +10,7 @@ export function ArticleCard({ article }) {
         {article.imageUrl ? (
           <img src={article.imageUrl} alt={article.title} className="article-card-image" loading="lazy" />
         ) : (
-          <div className="article-card-image-placeholder">{cat.icon}</div>
+          <div className="article-card-image-placeholder">{cat.icon}</div> 
         )}
         <span className="article-card-badge" style={{ background: cat.color }}>{cat.name}</span>
       </div>
