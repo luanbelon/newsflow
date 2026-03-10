@@ -7,12 +7,14 @@ import { slugify } from '@/lib/utils';
 export const maxDuration = 60;
 
 export async function GET(request) {
-  // Verify cron secret
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
-
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // 1. Verificação de Segurança via Header (Padrão Vercel)
+  const authHeader = request.headers.get('authorization');
+  
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json(
+      { error: 'Não autorizado' }, 
+      { status: 401 }
+    );
   }
 
   try {
@@ -25,7 +27,10 @@ export async function GET(request) {
     }
 
     if (dailyStat.articlesCount >= 50) {
-      return NextResponse.json({ message: 'Limite diário de 50 artigos atingido', count: dailyStat.articlesCount });
+      return NextResponse.json({ 
+        message: 'Limite diário de 50 artigos atingido', 
+        count: dailyStat.articlesCount 
+      });
     }
 
     const remaining = 50 - dailyStat.articlesCount;
