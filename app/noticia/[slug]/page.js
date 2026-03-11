@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { ArticleCardHorizontal } from '@/components/ArticleCard';
 import AdBanner from '@/components/AdBanner';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -87,6 +87,14 @@ export default async function ArticlePage({ params }) {
             <p key={i}>{p.trim()}</p>
           ))}
         </div>
+
+        {article.sourceUrl && (
+          <div className="article-source-link">
+            <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">
+              Ver post original →
+            </a>
+          </div>
+        )}
 
         <AdBanner position="article-bottom" />
 
