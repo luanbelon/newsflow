@@ -19,6 +19,16 @@ export async function GET(request) {
   }
 
   try {
+    // Verificar horário permitido: 5h às 22h (horário de Brasília, UTC-3)
+    const nowBRT = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const hourBRT = nowBRT.getHours();
+    if (hourBRT < 5 || hourBRT >= 22) {
+      return NextResponse.json({ 
+        message: `Fora do horário permitido (5h-22h BRT). Hora atual: ${hourBRT}h`,
+        skipped: true 
+      });
+    }
+
     // Check daily limit
     const today = new Date().toISOString().split('T')[0];
     let dailyStat = await prisma.dailyStat.findUnique({ where: { date: today } });
@@ -27,14 +37,16 @@ export async function GET(request) {
       dailyStat = await prisma.dailyStat.create({ data: { date: today, articlesCount: 0 } });
     }
 
-    if (dailyStat.articlesCount >= 50) {
+    const DAILY_LIMIT = 70;
+
+    if (dailyStat.articlesCount >= DAILY_LIMIT) {
       return NextResponse.json({ 
-        message: 'Limite diário de 50 artigos atingido', 
+        message: `Limite diário de ${DAILY_LIMIT} artigos atingido`, 
         count: dailyStat.articlesCount 
       });
     }
 
-    const remaining = 50 - dailyStat.articlesCount;
+    const remaining = DAILY_LIMIT - dailyStat.articlesCount;
     const batchSize = Math.min(remaining, 5); // Process up to 5 per invocation
 
     // Get active feeds
@@ -119,6 +131,7 @@ export async function GET(request) {
       revalidatePath('/');
       revalidatePath('/categoria/[slug]', 'page');
     }
+
 
     return NextResponse.json({
       success: true,
