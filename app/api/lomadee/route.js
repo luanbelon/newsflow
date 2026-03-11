@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const LOMADEE_BASE = 'https://api.lomadee.com/v3';
+const LOMADEE_BASE = 'https://api-beta.lomadee.com.br/v3';
 const API_KEY = process.env.LOMADEE_API_KEY || '';
 
 async function lomadee(path, params = {}) {
