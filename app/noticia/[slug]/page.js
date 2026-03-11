@@ -52,7 +52,23 @@ export default async function ArticlePage({ params }) {
     });
   } catch {}
 
-  const paragraphs = article.content.split(/\n\n|\n/).filter((p) => p.trim().length > 0);
+  // Split into paragraphs - handle \n\n, \n, ||| and fallback for single-block content
+  let paragraphs = article.content
+    .split(/\|\|\||\n\n|\n/)
+    .map(p => p.trim())
+    .filter(p => p.length > 30);
+
+  // If content came as one big block, try splitting by sentence groups
+  if (paragraphs.length <= 2) {
+    const sentences = article.content.match(/[^.!?]+[.!?]+/g) || [];
+    const grouped = [];
+    for (let i = 0; i < sentences.length; i += 3) {
+      const chunk = sentences.slice(i, i + 3).join(' ').trim();
+      if (chunk.length > 0) grouped.push(chunk);
+    }
+    if (grouped.length > paragraphs.length) paragraphs = grouped;
+  }
+
 
   return (
     <>
