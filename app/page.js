@@ -6,7 +6,8 @@ import Footer from '@/components/Footer';
 import { ArticleCard, ArticleCardHorizontal, ArticleListItem } from '@/components/ArticleCard';
 import AdBanner from '@/components/AdBanner';
 
-export const revalidate = 300;
+export const revalidate = 60;
+
 
 const PILL_GRADIENTS = [
   'linear-gradient(135deg, #6366f1, #8b5cf6)',

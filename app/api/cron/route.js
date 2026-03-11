@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { fetchFeed, createHash } from '@/lib/rss';
 import { rewriteArticle } from '@/lib/ai';
@@ -112,6 +113,12 @@ export async function GET(request) {
       where: { date: today },
       data: { articlesCount: dailyStat.articlesCount + processed },
     });
+
+    // Invalidate cache so new articles appear immediately on the front
+    if (processed > 0) {
+      revalidatePath('/');
+      revalidatePath('/categoria/[slug]', 'page');
+    }
 
     return NextResponse.json({
       success: true,
