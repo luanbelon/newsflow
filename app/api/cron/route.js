@@ -37,7 +37,7 @@ export async function GET(request) {
       dailyStat = await prisma.dailyStat.create({ data: { date: today, articlesCount: 0 } });
     }
 
-    const DAILY_LIMIT = 70;
+    const DAILY_LIMIT = 150;
 
     if (dailyStat.articlesCount >= DAILY_LIMIT) {
       return NextResponse.json({ 
