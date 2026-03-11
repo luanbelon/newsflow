@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("nf_DATABASE_URL")
+  directUrl = env("nf_DATABASE_URL_UNPOOLED")
 }
 
 model Article {
