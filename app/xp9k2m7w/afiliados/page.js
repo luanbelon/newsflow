@@ -11,7 +11,6 @@ export default function AfiliadosPage() {
   const [form, setForm] = useState({
     title: '',
     slug: '',
-    description: '',
     imageUrl: '',
     affiliateUrl: '',
     category: 'geral',
@@ -67,7 +66,6 @@ export default function AfiliadosPage() {
       setForm({
         title: '',
         slug: '',
-        description: '',
         imageUrl: '',
         affiliateUrl: '',
         category: 'geral',
@@ -103,7 +101,6 @@ export default function AfiliadosPage() {
     setForm({
       title: product.title,
       slug: product.slug,
-      description: product.description || '',
       imageUrl: product.imageUrl || '',
       affiliateUrl: product.affiliateUrl,
       category: product.category,
@@ -226,11 +223,11 @@ export default function AfiliadosPage() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Slug (URL interna, sem espaços)</label>
+              <label className="form-label">Slug (endereço interno, sem espaços)</label>
               <input
                 type="text"
                 className="admin-input"
-                placeholder="ex: playstation-5-mercado-livre"
+                placeholder="ex: playstation-5-mercado-livre (só para uso interno)"
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
                 required
@@ -247,29 +244,31 @@ export default function AfiliadosPage() {
                 required
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">Preço (R$)</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                className="admin-input"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Nota (0 a 5, pode ser decimal)</label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="5"
-                className="admin-input"
-                value={form.rating}
-                onChange={(e) => setForm({ ...form, rating: e.target.value })}
-              />
+            <div className="form-row-inline">
+              <div className="form-group">
+                <label className="form-label">Preço (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="admin-input"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Nota (0 a 5, pode ser decimal)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  className="admin-input"
+                  value={form.rating}
+                  onChange={(e) => setForm({ ...form, rating: e.target.value })}
+                />
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Imagem (URL opcional)</label>
@@ -278,15 +277,6 @@ export default function AfiliadosPage() {
                 className="admin-input"
                 value={form.imageUrl}
                 onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Descrição (opcional)</label>
-              <textarea
-                className="admin-input"
-                rows={3}
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </div>
             <div className="form-group">

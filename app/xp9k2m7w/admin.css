@@ -347,6 +347,8 @@
     padding: 28px;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-title {
@@ -358,6 +360,17 @@
 
 .form-group {
     margin-bottom: 16px;
+}
+
+/* Linhas com dois campos lado a lado (ex: preço e nota) */
+.form-row-inline {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row-inline .form-group {
+    flex: 1;
+    margin-bottom: 0;
 }
 
 .form-label {
