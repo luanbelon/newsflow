@@ -43,3 +43,18 @@ model DailyStat {
   date          String @unique
   articlesCount Int    @default(0)
 }
+
+model AffiliateProduct {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String?
+  imageUrl     String?
+  affiliateUrl String
+  sourceName   String   @default("Mercado Livre")
+  category     String
+  createdAt    DateTime @default(now())
+
+  @@index([category])
+  @@index([createdAt])
+}

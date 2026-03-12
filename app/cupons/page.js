@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Link from 'next/link';
 
-const CATEGORY_FILTERS = [
-  { label: 'Todos', value: '' },
-  { label: 'Moda', value: 'moda' },
-  { label: 'Eletrônicos', value: 'eletronicos' },
-  { label: 'Casa', value: 'casa' },
-  { label: 'Viagens', value: 'viagens' },
-  { label: 'Saúde & Beleza', value: 'saude' },
+// Produtos afiliados do Mercado Livre (substitui Lomadee por enquanto)
+// Ajuste / adicione itens conforme necessário.
+const ML_PRODUCTS = [
+  {
+    id: 'ml-1',
+    name: 'Exemplo de Produto Mercado Livre',
+    description: 'Substitua este exemplo pelos seus produtos reais do Mercado Livre.',
+    sourceName: 'Mercado Livre',
+    url: 'https://www.mercadolivre.com.br/',
+    categories: ['eletronicos'],
+  },
 ];
 
 function CouponCard({ item }) {
@@ -81,28 +84,9 @@ function CouponCard({ item }) {
 }
 
 export default function CuponsPage() {
-  const [campaigns, setCampaigns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [campaigns] = useState(ML_PRODUCTS);
   const [filter, setFilter] = useState('');
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState('campaigns');
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`/api/lomadee?type=${tab}`)
-      .then(r => r.json())
-      .then(data => {
-        const items = data?.data || data?.campaigns || data?.offers || data?.products || [];
-        setCampaigns(Array.isArray(items) ? items : []);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Não foi possível carregar as promoções agora. Tente novamente.');
-        setLoading(false);
-      });
-  }, [tab]);
 
   const filtered = campaigns.filter(item => {
     const text = `${item.name || ''} ${item.description || ''} ${item.brand?.name || ''} ${item.store?.name || ''}`.toLowerCase();
@@ -136,31 +120,9 @@ export default function CuponsPage() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-
-          {/* Tabs */}
-          <div className="cupons-tabs">
-            {[{ key: 'campaigns', label: '🎟️ Campanhas & Cupons' }, { key: 'offers', label: '🔥 Ofertas' }].map(t => (
-              <button
-                key={t.key}
-                className={`cupons-tab ${tab === t.key ? 'active' : ''}`}
-                onClick={() => setTab(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          {loading ? (
-            <div className="cupons-loading">
-              <div className="cupons-spinner" />
-              <p>Carregando promoções...</p>
-            </div>
-          ) : error ? (
-            <div className="cupons-error">
-              <p>😔 {error}</p>
-            </div>
-          ) : filtered.length === 0 ? (
+          
+          {/* Conteúdo */}
+          {filtered.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">🏷️</div>
               <h2 className="empty-state-text">Nenhuma promoção encontrada</h2>

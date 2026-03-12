@@ -85,6 +85,12 @@ export default function AdminLayout({ children }) {
             >
               📝 Artigos
             </Link>
+            <Link
+              href={`${ADMIN_PATH}/afiliados`}
+              className={`admin-nav-link ${pathname.includes('/afiliados') ? 'active' : ''}`}
+            >
+              🛒 Afiliados
+            </Link>
           </nav>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
