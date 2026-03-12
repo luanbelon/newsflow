@@ -119,7 +119,7 @@ export default function AfiliadosPage() {
       <div className="admin-toolbar">
         <h1 className="admin-page-title">🛒 Produtos Afiliados (Mercado Livre)</h1>
         <button
-          className="admin-btn admin-btn-sm"
+          className="admin-btn admin-btn-sm admin-btn-primary-strong"
           onClick={() => {
             setEditProduct(null);
             setForm({

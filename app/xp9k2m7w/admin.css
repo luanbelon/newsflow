@@ -83,6 +83,21 @@
     font-size: 13px;
 }
 
+/* Botão principal destacado (vermelho) para ações importantes */
+.admin-btn-primary-strong {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-btn-primary-strong:hover {
+    background: #b91c1c;
+    box-shadow: 0 8px 20px rgba(185, 28, 28, 0.6);
+}
+
 .admin-btn-danger {
     background: var(--red);
 }
@@ -326,8 +341,8 @@
 }
 
 .modal-content {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: var(--radius-lg);
     padding: 28px;
     width: 100%;
@@ -349,7 +364,7 @@
     display: block;
     font-size: 13px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: #111827;
     margin-bottom: 6px;
 }
 
