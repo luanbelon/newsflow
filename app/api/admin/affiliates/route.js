@@ -29,9 +29,9 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { title, slug, description, imageUrl, affiliateUrl, category, sourceName } = body;
+    const { title, slug, description, imageUrl, affiliateUrl, category, price, rating, sourceName } = body;
 
-    if (!title || !slug || !affiliateUrl || !category) {
+    if (!title || !slug || !affiliateUrl || !category || price === undefined) {
       return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
     }
 
@@ -43,6 +43,8 @@ export async function POST(request) {
         imageUrl: imageUrl || null,
         affiliateUrl,
         category,
+        price: Number(price),
+        rating: rating !== undefined ? Number(rating) : 0,
         sourceName: sourceName || 'Mercado Livre',
       },
     });
@@ -69,9 +71,13 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'ID é obrigatório' }, { status: 400 });
     }
 
+    const updateData = { ...data };
+    if (updateData.price !== undefined) updateData.price = Number(updateData.price);
+    if (updateData.rating !== undefined) updateData.rating = Number(updateData.rating);
+
     const product = await prisma.affiliateProduct.update({
       where: { id },
-      data,
+      data: updateData,
     });
 
     return NextResponse.json({ product });

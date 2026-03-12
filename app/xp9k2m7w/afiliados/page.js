@@ -15,6 +15,8 @@ export default function AfiliadosPage() {
     imageUrl: '',
     affiliateUrl: '',
     category: 'geral',
+    price: '',
+    rating: '',
     sourceName: 'Mercado Livre',
   });
 
@@ -69,6 +71,8 @@ export default function AfiliadosPage() {
         imageUrl: '',
         affiliateUrl: '',
         category: 'geral',
+        price: '',
+        rating: '',
         sourceName: 'Mercado Livre',
       });
       fetchProducts();
@@ -103,6 +107,8 @@ export default function AfiliadosPage() {
       imageUrl: product.imageUrl || '',
       affiliateUrl: product.affiliateUrl,
       category: product.category,
+      price: product.price?.toString() || '',
+      rating: product.rating?.toString() || '',
       sourceName: product.sourceName || 'Mercado Livre',
     });
     setShowModal(true);
@@ -139,6 +145,8 @@ export default function AfiliadosPage() {
               <th>Título</th>
               <th>Categoria</th>
               <th>Origem</th>
+              <th>Preço</th>
+              <th>Nota</th>
               <th>Link Afiliado</th>
               <th>Criado em</th>
               <th>Ações</th>
@@ -163,6 +171,12 @@ export default function AfiliadosPage() {
                   <td className="title-cell">{product.title}</td>
                   <td>{product.category}</td>
                   <td>{product.sourceName}</td>
+                  <td>
+                    {product.price != null
+                      ? product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                      : '-'}
+                  </td>
+                  <td>{product.rating?.toFixed(1) || '0.0'}</td>
                   <td className="title-cell" title={product.affiliateUrl}>
                     {product.affiliateUrl}
                   </td>
@@ -227,10 +241,34 @@ export default function AfiliadosPage() {
               <input
                 type="url"
                 className="admin-input"
-                placeholder="Cole aqui o link com sua etiqueta belonluan750"
+                placeholder="Cole aqui o link com sua etiqueta newsflow"
                 value={form.affiliateUrl}
                 onChange={(e) => setForm({ ...form, affiliateUrl: e.target.value })}
                 required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Preço (R$)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                className="admin-input"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Nota (0 a 5, pode ser decimal)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                className="admin-input"
+                value={form.rating}
+                onChange={(e) => setForm({ ...form, rating: e.target.value })}
               />
             </div>
             <div className="form-group">

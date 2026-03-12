@@ -1,100 +1,88 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-// Produtos afiliados do Mercado Livre (substitui Lomadee por enquanto)
-// Ajuste / adicione itens conforme necessário.
-const ML_PRODUCTS = [
-  {
-    id: 'ml-1',
-    name: 'Exemplo de Produto Mercado Livre',
-    description: 'Substitua este exemplo pelos seus produtos reais do Mercado Livre.',
-    sourceName: 'Mercado Livre',
-    url: 'https://www.mercadolivre.com.br/',
-    categories: ['eletronicos'],
-  },
-];
-
-function CouponCard({ item }) {
-  const [copied, setCopied] = useState(false);
-
-  const code = item.code || item.couponCode || null;
-  const name = item.name || item.title || 'Promoção';
-  const description = item.description || item.details || '';
-  const brand = item.brand?.name || item.store?.name || item.sourceName || '';
-  const logo = item.brand?.logo || item.store?.thumbnail || null;
-  const url = item.url || item.link || '#';
-  const discount = item.discountValue || item.discount || null;
-  const discountType = item.discountType || (discount ? '%' : null);
-  const endDate = item.period?.endAt || item.validity || null;
-
-  const handleCopy = () => {
-    if (code) {
-      navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+function ProductCard({ item }) {
+  const name = item.title || 'Promoção';
+  const description = item.description || '';
+  const brand = item.sourceName || 'Mercado Livre';
+  const image = item.imageUrl || null;
+  const url = item.affiliateUrl || '#';
+  const price =
+    typeof item.price === 'number'
+      ? item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      : null;
+  const rating = typeof item.rating === 'number' ? item.rating : 0;
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating - fullStars >= 0.5;
 
   return (
     <div className="coupon-card">
       <div className="coupon-left">
-        {logo ? (
-          <img src={logo} alt={brand} className="coupon-logo" />
+        {image ? (
+          <img src={image} alt={name} className="coupon-logo" />
         ) : (
           <div className="coupon-logo-placeholder">🏷️</div>
-        )}
-        {discount && (
-          <div className="coupon-discount">
-            <span>{discount}{discountType === 'percentage' ? '%' : discountType === 'fixed' ? ' OFF' : '%'}</span>
-            <small>desc.</small>
-          </div>
         )}
       </div>
       <div className="coupon-body">
         {brand && <span className="coupon-brand">{brand}</span>}
         <h3 className="coupon-name">{name}</h3>
-        {description && <p className="coupon-desc">{description.substring(0, 120)}{description.length > 120 ? '...' : ''}</p>}
-        {endDate && (
-          <span className="coupon-validity">
-            📅 Válido até: {new Date(endDate).toLocaleDateString('pt-BR')}
-          </span>
+        {description && (
+          <p className="coupon-desc">
+            {description.substring(0, 120)}
+            {description.length > 120 ? '...' : ''}
+          </p>
         )}
+        <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {price && <span style={{ fontWeight: 600 }}>{price}</span>}
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            {Array.from({ length: 5 }).map((_, i) => {
+              if (i < fullStars) return '★';
+              if (i === fullStars && hasHalfStar) return '☆';
+              return '☆';
+            })}{' '}
+            {rating.toFixed(1)}
+          </span>
+        </div>
       </div>
       <div className="coupon-right">
-        {code ? (
-          <>
-            <button onClick={handleCopy} className={`coupon-code-btn ${copied ? 'copied' : ''}`}>
-              {copied ? '✓ Copiado!' : code}
-            </button>
-            <a href={url} target="_blank" rel="noopener noreferrer" className="coupon-use-btn">
-              Usar cupom →
-            </a>
-          </>
-        ) : (
-          <a href={url} target="_blank" rel="noopener noreferrer" className="coupon-use-btn full">
-            Ver oferta →
-          </a>
-        )}
+        <a href={url} target="_blank" rel="noopener noreferrer" className="coupon-use-btn full">
+          Ver promoção →
+        </a>
       </div>
     </div>
   );
 }
 
 export default function CuponsPage() {
-  const [campaigns] = useState(ML_PRODUCTS);
-  const [filter, setFilter] = useState('');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
 
-  const filtered = campaigns.filter(item => {
-    const text = `${item.name || ''} ${item.description || ''} ${item.brand?.name || ''} ${item.store?.name || ''}`.toLowerCase();
-    const matchSearch = !search || text.includes(search.toLowerCase());
-    const matchFilter = !filter || (item.categories || []).some(c => 
-      typeof c === 'string' ? c.toLowerCase().includes(filter) : c?.name?.toLowerCase().includes(filter)
-    );
-    return matchSearch && matchFilter;
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetch('/api/affiliates')
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts(Array.isArray(data.products) ? data.products : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Não foi possível carregar as promoções agora. Tente novamente.');
+        setLoading(false);
+      });
+  }, []);
+
+  const filtered = products.filter((item) => {
+    const text = `${item.title || ''} ${item.description || ''} ${item.category || ''} ${
+      item.sourceName || ''
+    }`.toLowerCase();
+    return !search || text.includes(search.toLowerCase());
   });
 
   return (
@@ -122,7 +110,16 @@ export default function CuponsPage() {
           </div>
           
           {/* Conteúdo */}
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="cupons-loading">
+              <div className="cupons-spinner" />
+              <p>Carregando promoções...</p>
+            </div>
+          ) : error ? (
+            <div className="cupons-error">
+              <p>😔 {error}</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">🏷️</div>
               <h2 className="empty-state-text">Nenhuma promoção encontrada</h2>
@@ -132,7 +129,7 @@ export default function CuponsPage() {
             <div className="cupons-list">
               <p className="cupons-count">{filtered.length} promoções encontradas</p>
               {filtered.map((item, i) => (
-                <CouponCard key={item.id || i} item={item} />
+                <ProductCard key={item.id || i} item={item} />
               ))}
             </div>
           )}

@@ -53,6 +53,8 @@ model AffiliateProduct {
   affiliateUrl String
   sourceName   String   @default("Mercado Livre")
   category     String
+  price        Float
+  rating       Float    @default(0)
   createdAt    DateTime @default(now())
 
   @@index([category])
