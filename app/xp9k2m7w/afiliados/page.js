@@ -297,7 +297,7 @@ export default function AfiliadosPage() {
               >
                 Cancelar
               </button>
-              <button type="submit" className="admin-btn admin-btn-sm">
+              <button type="submit" className="admin-btn admin-btn-sm admin-btn-success">
                 {editProduct ? 'Salvar' : 'Adicionar'}
               </button>
             </div>
