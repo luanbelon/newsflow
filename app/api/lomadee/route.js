@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 
-const LOMADEE_BASE = 'https://api-beta.lomadee.com.br/v3';
+// Base seguindo a documentação oficial:
+// https://docs.lomadee.com.br/api-reference/affiliate/products/all
+const LOMADEE_BASE = 'https://api-beta.lomadee.com.br';
 const API_KEY = process.env.LOMADEE_API_KEY || '';
 
 async function lomadee(path, params = {}) {
@@ -9,26 +11,28 @@ async function lomadee(path, params = {}) {
     headers: { 'x-api-key': API_KEY },
     next: { revalidate: 3600 }, // cache 1 hora
   });
-  if (!res.ok) throw new Error(`Lomadee ${path}: ${res.status}`);
+
+  if (!res.ok) {
+    throw new Error(`Lomadee ${path}: ${res.status}`);
+  }
+
   return res.json();
 }
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type') || 'campaigns';
+
+  // Mesmo que o front envie ?type=campaigns ou ?type=offers,
+  // usamos o endpoint de produtos, que retorna { data, meta }.
+  const page = Number(searchParams.get('page') || 1);
+  const limit = Number(searchParams.get('limit') || 20);
+  const search = searchParams.get('q') || undefined;
+
+  const params = { page, limit };
+  if (search) params.search = search;
 
   try {
-    let data;
-
-    if (type === 'campaigns') {
-      data = await lomadee('/campaigns', { limit: 60 });
-    } else if (type === 'offers') {
-      data = await lomadee('/offer', { limit: 60 });
-    } else if (type === 'products') {
-      const keyword = searchParams.get('q') || 'promoção';
-      data = await lomadee('/product/search', { keyword, limit: 40 });
-    }
-
+    const data = await lomadee('/affiliate/products', params);
     return NextResponse.json(data);
   } catch (error) {
     console.error('Lomadee API error:', error.message);
