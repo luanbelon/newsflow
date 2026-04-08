@@ -8,10 +8,15 @@ import { slugify } from '@/lib/utils';
 export const maxDuration = 60;
 
 export async function GET(request) {
-  // 1. Verificação de Segurança via Header (Padrão Vercel)
+  // Security: supports Vercel Cron header and external cron query param
   const authHeader = request.headers.get('authorization');
-  
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const { searchParams } = new URL(request.url);
+  const secretParam = searchParams.get('secret');
+  const isAuthorized =
+    authHeader === `Bearer ${process.env.CRON_SECRET}` ||
+    secretParam === process.env.CRON_SECRET;
+
+  if (!isAuthorized) {
     return NextResponse.json(
       { error: 'Não autorizado' }, 
       { status: 401 }
