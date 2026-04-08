@@ -29,15 +29,18 @@ export async function GET(request) {
       });
     }
 
-    // Check daily limit
-    const today = new Date().toISOString().split('T')[0];
+    // Check daily limit using Sao Paulo timezone (BRT)
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+    }).format(new Date());
     let dailyStat = await prisma.dailyStat.findUnique({ where: { date: today } });
 
     if (!dailyStat) {
       dailyStat = await prisma.dailyStat.create({ data: { date: today, articlesCount: 0 } });
     }
 
-    const DAILY_LIMIT = 150;
+    const DAILY_LIMIT = 50;
+    const MAX_PER_INVOCATION = 10;
 
     if (dailyStat.articlesCount >= DAILY_LIMIT) {
       return NextResponse.json({ 
@@ -47,7 +50,7 @@ export async function GET(request) {
     }
 
     const remaining = DAILY_LIMIT - dailyStat.articlesCount;
-    const batchSize = Math.min(remaining, 5); // Process up to 5 per invocation
+    const batchSize = Math.min(remaining, MAX_PER_INVOCATION);
 
     // Get active feeds
     const feeds = await prisma.feed.findMany({ where: { isActive: true } });
@@ -58,6 +61,7 @@ export async function GET(request) {
 
     let processed = 0;
     const results = [];
+    const feedItemsCache = new Map();
 
     // Rotate through feeds - pick one feed at a time based on least recently fetched
     const sortedFeeds = feeds.sort((a, b) => {
@@ -66,27 +70,41 @@ export async function GET(request) {
       return new Date(a.lastFetched) - new Date(b.lastFetched);
     });
 
-    for (const feed of sortedFeeds) {
-      if (processed >= batchSize) break;
+    // Build day range in BRT to prioritize feeds without a post today
+    const [year, month, day] = today.split('-').map(Number);
+    const dayStartUtc = new Date(Date.UTC(year, month - 1, day, 3, 0, 0));
+    const dayEndUtc = new Date(Date.UTC(year, month - 1, day + 1, 2, 59, 59, 999));
+    const postedToday = await prisma.article.findMany({
+      where: {
+        createdAt: {
+          gte: dayStartUtc,
+          lte: dayEndUtc,
+        },
+      },
+      select: { sourceName: true },
+      distinct: ['sourceName'],
+    });
+    const postedTodaySet = new Set(postedToday.map((item) => item.sourceName));
 
-      const items = await fetchFeed(feed.url);
+    async function processFeed(feed, onePostOnly = false) {
+      if (processed >= batchSize) return;
+      let items = feedItemsCache.get(feed.id);
+      if (!items) {
+        items = await fetchFeed(feed.url);
+        feedItemsCache.set(feed.id, items);
+      }
 
       for (const item of items) {
         if (processed >= batchSize) break;
 
         const hash = createHash(item.link);
-
-        // Check if already exists
         const exists = await prisma.article.findUnique({ where: { sourceHash: hash } });
         if (exists) continue;
 
-        // Skip items with too little content
         if (!item.title || item.title.length < 10) continue;
         if (!item.content || item.content.length < 50) continue;
 
-        // Rewrite with AI
         const rewritten = await rewriteArticle(item.title, item.content);
-
         const slug = slugify(rewritten.title) + '-' + Date.now().toString(36);
 
         try {
@@ -107,17 +125,32 @@ export async function GET(request) {
 
           results.push({ id: article.id, title: article.title, category: article.category });
           processed++;
+          postedTodaySet.add(feed.name);
+
+          if (onePostOnly) break;
         } catch (err) {
           console.error('Erro ao salvar artigo:', err.message);
           continue;
         }
       }
 
-      // Update lastFetched
       await prisma.feed.update({
         where: { id: feed.id },
         data: { lastFetched: new Date() },
       });
+    }
+
+    // Pass 1: ensure feed diversity (at least one from feeds not posted today yet)
+    const feedsWithoutPostToday = sortedFeeds.filter((feed) => !postedTodaySet.has(feed.name));
+    for (const feed of feedsWithoutPostToday) {
+      if (processed >= batchSize) break;
+      await processFeed(feed, true);
+    }
+
+    // Pass 2: fill remaining quota
+    for (const feed of sortedFeeds) {
+      if (processed >= batchSize) break;
+      await processFeed(feed, false);
     }
 
     // Update daily count
